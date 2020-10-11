@@ -1,0 +1,23 @@
+Package: mapalib
+Type: Package
+Title: MapaLib
+Version: 0.1.0
+Author: Daniel Ferreira
+Maintainer: Daniel Ferreira <daniel@cinconoveseis.com.br>
+Description: Generate detailed Brazilian election maps seamlessly.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports:
+	geobr,
+	sf,
+	readr,
+	dplyr,
+	purrr,
+	stringr,
+	magrittr,
+	Rcpp
+LinkingTo: Rcpp
+RoxygenNote: 7.1.1
+Depends: 
+    R (>= 2.10)
