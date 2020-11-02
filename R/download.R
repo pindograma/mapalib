@@ -4,7 +4,7 @@
 # This file is licensed under the GNU General Public License, version 3.
 
 download_geocoded_sections = function(year, city_id) {
-  readr::read_csv(paste0('http://pindograma-dados.s3.amazonaws.com/mapa_locais/mapa_', city_id, '_', year, '.csv'),
+  readr::read_csv(paste0('http://pindograma-dados.s3.amazonaws.com/mapa_locais_2/mapa_', city_id, '_', year, '.csv'),
                   col_types = readr::cols(
                     comp_tse_lat = readr::col_double(), comp_tse_lon = readr::col_double(),
                     tse_lat = readr::col_double(), tse_lon = readr::col_double(),
@@ -15,22 +15,19 @@ download_geocoded_sections = function(year, city_id) {
                     pl_Distrito = readr::col_double(), pl_Subdistrito = readr::col_double(), pl_CodSetor = readr::col_double(),
                     ad_Distrito = readr::col_double(), ad_Subdistrito = readr::col_double(), ad_CodSetor = readr::col_double(),
                     approx_ad_Distrito = readr::col_double(), approx_ad_Subdistrito = readr::col_double(), approx_ad_CodSetor = readr::col_double(),
-                    google_approx_lat = readr::col_double(), google_approx_lon = readr::col_double()
+                    google_approx_lat = readr::col_double(), google_approx_lon = readr::col_double(),
+                    ibge_approx_lat = readr::col_double(), ibge_approx_lon = readr::col_double()
   ))
 }
 
-download_section_votes = function(year, city_id) {
-  tse_id = ibge_tse_correspondence %>%
+download_section_votes = function(year, position, city_id) {
+  state = ibge_tse_correspondence %>%
     dplyr::filter(codigo_ibge == city_id) %>%
-    dplyr::pull(codigo_tse)
+    dplyr::pull(uf)
 
-  if (year != 2018) {
-    tse_id = stringr::str_pad(tse_id, 5, pad = '0')
-  }
-
-  readr::read_csv(paste0('http://pindograma-dados.s3.amazonaws.com/votos_por_secao/', year, '/', tse_id, '.csv')) %>%
-    dplyr::rename_all(dplyr::recode, QTD_VOTOS = 'QT_VOTOS', NR_VOTAVEL = 'NUM_VOTAVEL') %>%
-    dplyr::mutate(ano = year)
+  cepespR::get_votes(year, position, 'Electoral Section', state = state,
+                     cached = T, blank_votes = T, null_votes = T) %>%
+    filter(COD_MUN_IBGE == city_id)
 }
 
 download_ibge_data = function(city_id) {

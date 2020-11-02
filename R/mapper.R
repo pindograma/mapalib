@@ -17,16 +17,20 @@ append_chosen_latlon_to_geocoded_sections = function(geocoded_secoes) {
       lat = dplyr::case_when(
         !is.na(comp_tse_lat) ~ comp_tse_lat,
         !is.na(tse_lat) ~ tse_lat,
-        !is.na(inep_lat) ~ inep_lat,
         !is.na(google_lat) ~ google_lat,
+        !is.na(inep_lat) ~ inep_lat,
         !is.na(places_lat) ~ places_lat,
+        !is.na(google_approx_lat) ~ google_approx_lat,
+        !is.na(ibge_approx_lat) ~ ibge_approx_lat,
         T ~ NA_real_),
       lon = dplyr::case_when(
         !is.na(comp_tse_lon) ~ comp_tse_lon,
         !is.na(tse_lon) ~ tse_lon,
-        !is.na(inep_lon) ~ inep_lon,
         !is.na(google_lon) ~ google_lon,
+        !is.na(inep_lon) ~ inep_lon,
         !is.na(places_lon) ~ places_lon,
+        !is.na(google_approx_lon) ~ google_approx_lon,
+        !is.na(ibge_approx_lon) ~ ibge_approx_lon,
         T ~ NA_real_)) %>%
   dplyr::mutate(code_tract = dplyr::case_when(
     !is.na(rural_Distrito) & !is.na(rural_Subdistrito) & !is.na(rural_CodSetor) ~
@@ -35,6 +39,8 @@ append_chosen_latlon_to_geocoded_sections = function(geocoded_secoes) {
       gen_tract(codigo_ibge, ad_Distrito, ad_Subdistrito, ad_CodSetor),
     !is.na(pl_Distrito) & !is.na(pl_Subdistrito) & !is.na(pl_CodSetor) ~
       gen_tract(codigo_ibge, pl_Distrito, pl_Subdistrito, pl_CodSetor),
+    !is.na(approx_ad_Distrito) & !is.na(approx_ad_Subdistrito) & !is.na(approx_ad_CodSetor) ~
+      gen_tract(codigo_ibge, approx_ad_Distrito, approx_ad_Subdistrito, approx_ad_CodSetor),
     T ~ NA_character_))
 }
 
