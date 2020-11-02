@@ -3,6 +3,7 @@
 #
 # This file is licensed under the GNU General Public License, version 3.
 
+#' @export
 get_map_data = function(year, position, cities, epsg, aggregate_fun, ..., source_order = NULL, districts = NULL) {
   purrr::map_dfr(cities, function(city_id) {
     ibge_data = download_ibge_data(city_id)
