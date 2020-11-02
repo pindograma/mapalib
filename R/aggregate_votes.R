@@ -3,6 +3,7 @@
 #
 # This file is licensed under the GNU General Public License, version 3.
 
+#' @export
 aggregate_majoritarian = function(votes, position, turno, party_number) {
   if (turno == 'latest') {
     turno = max(votes$NUM_TURNO)
