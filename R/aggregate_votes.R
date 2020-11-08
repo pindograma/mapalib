@@ -4,9 +4,14 @@
 # This file is licensed under the GNU General Public License, version 3.
 
 #' @export
-aggregate_majoritarian = function(votes, position, turno, party_number) {
+aggregate_majoritarian = function(votes, position, turno, party_number, with_blank_null) {
   if (turno == 'latest') {
     turno = max(votes$NUM_TURNO)
+  }
+
+  if (!with_blank_null) {
+    votes = votes %>%
+      dplyr::filter(NUMERO_CANDIDATO <= 90)
   }
 
   votes_sum = votes %>%

@@ -27,7 +27,7 @@ download_section_votes = function(year, position, city_id) {
 
   cepespR::get_votes(year, position, 'Electoral Section', state = state,
                      cached = T, blank_votes = T, null_votes = T) %>%
-    filter(COD_MUN_IBGE == city_id)
+    dplyr::filter(COD_MUN_IBGE == city_id)
 }
 
 download_ibge_data = function(city_id) {
