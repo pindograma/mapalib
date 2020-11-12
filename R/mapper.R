@@ -46,7 +46,7 @@ append_chosen_latlon_to_geocoded_sections = function(geocoded_secoes) {
 
 append_sections_to_tracts = function(tracts, geocoded_secoes, epsg) {
   if (!('lat' %in% colnames(geocoded_secoes))) {
-          stop('append_sections_to_tracts() requires that one call append_chosen_latlon_to_geocoded_sections(), or do something equivalent, before')
+    stop('append_sections_to_tracts() requires that one call append_chosen_latlon_to_geocoded_sections(), or do something equivalent, before')
   }
 
   points = geocoded_secoes %>%

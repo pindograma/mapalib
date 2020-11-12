@@ -3,8 +3,7 @@
 #
 # This file is licensed under the GNU General Public License, version 3.
 
-#' @export
-aggregate_majoritarian = function(votes, position, turno, party_number, with_blank_null) {
+get_votes_sum = function(votes, position, turno, with_blank_null) {
   if (turno == 'latest') {
     turno = max(votes$NUM_TURNO)
   }
@@ -14,18 +13,22 @@ aggregate_majoritarian = function(votes, position, turno, party_number, with_bla
       dplyr::filter(NUMERO_CANDIDATO <= 90)
   }
 
-  votes_sum = votes %>%
+  votes %>%
     dplyr::filter(NUM_TURNO == turno) %>%
     dplyr::filter(CODIGO_CARGO == position) %>%
     dplyr::group_by(ANO_ELEICAO, NUM_ZONA, NUM_SECAO) %>%
     dplyr::mutate(total = sum(QTDE_VOTOS)) %>%
-    dplyr::group_by(NUMERO_CANDIDATO, .add = T) %>%
+    dplyr::group_by(NUMERO_CANDIDATO, NUM_TURNO, .add = T) %>%
     dplyr::summarize(
-      NUM_TURNO = dplyr::first(NUM_TURNO),
       abs_votes = sum(QTDE_VOTOS),
       cand = sum(QTDE_VOTOS) / dplyr::first(total)
     ) %>%
     dplyr::ungroup()
+}
+
+#' @export
+aggregate_majoritarian = function(votes, position, turno, party_number, with_blank_null) {
+  votes_sum = get_votes_sum(votes, position, turno, with_blank_null)
 
   if (party_number == 'winner') {
     party_number = votes_sum %>%
@@ -38,6 +41,14 @@ aggregate_majoritarian = function(votes, position, turno, party_number, with_bla
 
   votes_sum %>%
     dplyr::filter(NUMERO_CANDIDATO == party_number)
+}
+
+#' @export
+aggregate_all_candidates = function(votes, position, turno, with_blank_null) {
+  votes_sum = get_votes_sum(votes, position, turno, with_blank_null)
+
+  votes_sum %>%
+    tidyr::pivot_wider(names_from = NUMERO_CANDIDATO, values_from = c(cand, abs_votes))
 }
 
 aggregate_minoritarian_ideology = function(votes, positions) {

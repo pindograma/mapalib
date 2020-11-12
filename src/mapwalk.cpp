@@ -13,7 +13,6 @@
 using namespace Rcpp;
 
 DataFrame mapwalk_(NumericVector main,
-                   DoubleVector bolsonaro_p,
                    List geom,
                    CharacterVector codetract,
                    List g_geom,
@@ -79,7 +78,6 @@ DataFrame mapwalk_(NumericVector main,
         all.insert(pick);
 
         main.push_back(main[i]);
-        bolsonaro_p.push_back(NA_REAL);
         geom.push_back(g_geom[pick - 1]);
         codetract.push_back(g_codetract[pick - 1]);
     }
@@ -90,11 +88,10 @@ DataFrame mapwalk_(NumericVector main,
 		    Function st_sf = sf["st_sf"];
         return st_sf(Named("geom", geom),
                      Named("main", main),
-                     Named("cand", bolsonaro_p),
                      Named("code_tract", codetract));
     }
 
-    return mapwalk_(main, bolsonaro_p, geom, codetract, g_geom, g_codetract, all, useless, epsg, tracts);
+    return mapwalk_(main, geom, codetract, g_geom, g_codetract, all, useless, epsg, tracts);
 }
 
 // [[Rcpp::export]]
@@ -103,7 +100,6 @@ DataFrame mapwalk(DataFrame spt, DataFrame sp, NumericVector all_vec, int epsg) 
     std::set<int> all(all_.begin(), all_.end());
 
     NumericVector main = spt["main"];
-    DoubleVector bolsonaro_p = spt["cand"];
     CharacterVector codetract = spt["code_tract"];
     List geom = spt["geom"];
     List g_geom = sp["geom"];
@@ -111,5 +107,5 @@ DataFrame mapwalk(DataFrame spt, DataFrame sp, NumericVector all_vec, int epsg) 
 
     std::vector<int> useless(150000, false);
 
-    return mapwalk_(main, bolsonaro_p, geom, codetract, g_geom, g_codetract, all, useless, epsg, sp);
+    return mapwalk_(main, geom, codetract, g_geom, g_codetract, all, useless, epsg, sp);
 }

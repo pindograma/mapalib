@@ -22,20 +22,21 @@ get_map_data = function(year, position, cities, epsg, aggregate_fun, ..., source
     votes_sum = download_section_votes(year, position, city_id) %>%
       aggregate_fun(position, ...)
 
-    data = append_sections_to_tracts(tracts, dplyr::filter(geocoded_sections, ano == year), epsg) %>%
-      dplyr::inner_join(votes_sum, by = c('zona' = 'NUM_ZONA', 'secao' = 'NUM_SECAO')) %>%
-      dplyr::inner_join(ibge_data, by = c('code_tract' = 'Cod_setor'))
-
-    spt = data %>%
-      dplyr::group_by(code_tract) %>%
-      dplyr::summarize(rn = dplyr::first(rn), cand = mean(cand)) %>%
-      dplyr::filter(!is.na(cand)) %>%
+    tracts_with_voting_data = tracts %>%
+      append_sections_to_tracts(dplyr::filter(geocoded_sections, ano == year), epsg) %>%
+      dplyr::semi_join(votes_sum, by = c('zona' = 'NUM_ZONA', 'secao' = 'NUM_SECAO')) %>%
+      dplyr::semi_join(ibge_data, by = c('code_tract' = 'Cod_setor')) %>%
+      dplyr::distinct(code_tract, rn) %>%
       dplyr::mutate(main = rn)
 
-    mapwalk(spt, tracts, spt$main, epsg) %>%
+    mapwalk(tracts_with_voting_data, tracts, tracts_with_voting_data$main, epsg) %>%
+      append_sections_to_tracts(dplyr::filter(geocoded_sections, ano == year), epsg) %>%
+      dplyr::inner_join(votes_sum, by = c('zona' = 'NUM_ZONA', 'secao' = 'NUM_SECAO')) %>%
       dplyr::inner_join(ibge_data, by = c('code_tract' = 'Cod_setor')) %>%
       dplyr::group_by(main) %>%
-      dplyr::summarize(cand = mean(cand, na.rm = T), renda = mean(basico_V009))
+      dplyr::summarize(dplyr::across(dplyr::starts_with('cand'), mean, na.rm = T),
+                       dplyr::across(dplyr::starts_with('abs_votes'), sum, na.rm = T),
+                       renda = mean(basico_V009))
   })
 }
 
