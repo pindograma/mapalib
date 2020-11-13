@@ -31,12 +31,12 @@ get_map_data = function(year, position, cities, epsg, aggregate_fun, ..., source
 
     mapwalk(tracts_with_voting_data, tracts, tracts_with_voting_data$main, epsg) %>%
       append_sections_to_tracts(dplyr::filter(geocoded_sections, ano == year), epsg) %>%
-      dplyr::inner_join(votes_sum, by = c('zona' = 'NUM_ZONA', 'secao' = 'NUM_SECAO')) %>%
-      dplyr::inner_join(ibge_data, by = c('code_tract' = 'Cod_setor')) %>%
+      dplyr::left_join(votes_sum, by = c('zona' = 'NUM_ZONA', 'secao' = 'NUM_SECAO')) %>%
+      dplyr::left_join(ibge_data, by = c('code_tract' = 'Cod_setor')) %>%
       dplyr::group_by(main) %>%
       dplyr::summarize(dplyr::across(dplyr::starts_with('cand'), mean, na.rm = T),
                        dplyr::across(dplyr::starts_with('abs_votes'), sum, na.rm = T),
-                       renda = mean(basico_V009))
+                       renda = mean(basico_V009, na.rm = T))
   })
 }
 
