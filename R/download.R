@@ -4,7 +4,7 @@
 # This file is licensed under the GNU General Public License, version 3.
 
 download_geocoded_sections = function(year, city_id) {
-  readr::read_csv(paste0('http://pindograma-dados.s3.amazonaws.com/mapa_locais_2/mapa_', city_id, '_', year, '.csv'),
+  readr::read_csv(paste0('http://pindograma-dados.s3.amazonaws.com/mapa_locais_3/mapa_', city_id, '_', year, '.csv'),
                   col_types = readr::cols(
                     comp_tse_lat = readr::col_double(), comp_tse_lon = readr::col_double(),
                     tse_lat = readr::col_double(), tse_lon = readr::col_double(),
@@ -17,7 +17,8 @@ download_geocoded_sections = function(year, city_id) {
                     approx_ad_Distrito = readr::col_double(), approx_ad_Subdistrito = readr::col_double(), approx_ad_CodSetor = readr::col_double(),
                     google_approx_lat = readr::col_double(), google_approx_lon = readr::col_double(),
                     ibge_approx_lat = readr::col_double(), ibge_approx_lon = readr::col_double()
-  ))
+  )) %>%
+    dplyr::rename(ano = ano.x)
 }
 
 download_section_votes = function(year, position, city_id) {
@@ -25,9 +26,22 @@ download_section_votes = function(year, position, city_id) {
     dplyr::filter(codigo_ibge == city_id) %>%
     dplyr::pull(uf)
 
-  cepespR::get_votes(year, position, 'Electoral Section', state = state,
-                     cached = T, blank_votes = T, null_votes = T) %>%
-    dplyr::filter(COD_MUN_IBGE == city_id)
+  tse_id = ibge_tse_correspondence %>%
+    dplyr::filter(codigo_ibge == city_id) %>%
+    dplyr::pull(codigo_tse) %>%
+    stringr::str_pad(5, pad = '0')
+
+  if (year == 2020) {
+    readr::read_csv(paste0('https://pindograma-dados.s3.amazonaws.com/secoes_eleitorais_2020/secoes_', tse_id, '.csv')) %>%
+      dplyr::rename(NUM_TURNO = NR_TURNO) %>%
+      dplyr::rename(CODIGO_CARGO = CD_CARGO) %>%
+      dplyr::rename(NUMERO_CANDIDATO = NR_VOTAVEL) %>%
+      dplyr::rename(NUM_ZONA = NR_ZONA, NUM_SECAO = NR_SECAO, QTDE_VOTOS = QT_VOTOS)
+  } else {
+    cepespR::get_votes(year, position, 'Electoral Section', state = state,
+                       cached = T, blank_votes = T, null_votes = T) %>%
+      dplyr::filter(COD_MUN_IBGE == city_id)
+  }
 }
 
 download_ibge_data = function(city_id) {
