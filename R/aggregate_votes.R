@@ -10,7 +10,7 @@ get_votes_sum = function(votes, position, turno, with_blank_null) {
 
   if (!with_blank_null) {
     votes = votes %>%
-      dplyr::filter(NUMERO_CANDIDATO <= 90)
+      dplyr::filter(!(NUMERO_CANDIDATO %in% c(95, 96)))
   }
 
   votes %>%
@@ -48,6 +48,15 @@ aggregate_all_candidates = function(votes, position, turno, with_blank_null) {
   votes_sum = get_votes_sum(votes, position, turno, with_blank_null)
 
   votes_sum %>%
+    tidyr::pivot_wider(names_from = NUMERO_CANDIDATO, values_from = c(cand, abs_votes))
+}
+
+#' @export
+aggregate_all_parties = function(votes, position, turno, with_blank_null) {
+  get_votes_sum(votes, position, turno, with_blank_null) %>%
+    dplyr::mutate(NUMERO_CANDIDATO = stringr::str_sub(NUMERO_CANDIDATO, 1, 2)) %>%
+    dplyr::group_by(ANO_ELEICAO, NUM_ZONA, NUM_SECAO, NUM_TURNO, NUMERO_CANDIDATO) %>%
+    dplyr::summarize(cand = sum(cand), abs_votes = sum(abs_votes)) %>%
     tidyr::pivot_wider(names_from = NUMERO_CANDIDATO, values_from = c(cand, abs_votes))
 }
 
