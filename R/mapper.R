@@ -83,7 +83,9 @@ get_section_points = function(geocoded_secoes, tracts, epsg) {
   points2 = tracts %>%
   	dplyr::inner_join(geocoded_secoes %>% dplyr::filter(is.na(lat) | is.na(lon)), 'code_tract') %>%
   	sf::st_centroid() %>%
-  	dplyr::select(-lat, -lon)
+  	dplyr::select(-zone, -code_muni, -name_muni, -name_neighborhood, -code_neighborhood,
+  	              -code_subdistrict, -name_subdistrict, -code_district, -name_district,
+  	              -code_state, -Distrito, -Subdistrito, -CodSetor, -rn, -lat, -lon)
 
   rbind(points1, points2)
 }

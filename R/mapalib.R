@@ -40,6 +40,30 @@ get_map_data = function(year, position, cities, epsg, aggregate_fun, ..., source
   })
 }
 
+#' @export
+get_map_points = function(year, position, cities, epsg, aggregate_fun, ..., source_order = NULL, districts = NULL) {
+  purrr::map_dfr(cities, function(city_id) {
+    tracts = download_tracts(city_id, epsg) %>%
+      dplyr::mutate(rn = dplyr::row_number())
+
+    if (!is.null(districts)) {
+      tracts = tracts %>%
+        dplyr::filter(name_district %in% districts)
+    }
+
+    geocoded_sections = download_geocoded_sections(year, city_id) %>%
+      append_chosen_latlon_to_geocoded_sections()
+
+    votes_sum = download_section_votes(year, position, city_id) %>%
+      aggregate_fun(position, ...)
+
+    geocoded_sections %>%
+      dplyr::filter(ano == year) %>%
+      get_section_points(tracts, epsg) %>%
+      dplyr::inner_join(votes_sum, c('zona' = 'NUM_ZONA', 'secao' = 'NUM_SECAO'))
+  })
+}
+
 get_map = function(...) {
   get_map_data(..., gen_map = T)
 }

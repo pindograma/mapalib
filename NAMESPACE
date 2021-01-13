@@ -2,8 +2,10 @@
 
 export("%>%")
 export(aggregate_all_candidates)
+export(aggregate_all_parties)
 export(aggregate_majoritarian)
 export(get_map_data)
+export(get_map_points)
 importFrom(Rcpp,sourceCpp)
 importFrom(magrittr,"%>%")
 useDynLib(mapalib, .registration = TRUE)
