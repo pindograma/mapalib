@@ -52,6 +52,11 @@ aggregate_all_candidates = function(votes, position, turno, with_blank_null) {
 }
 
 #' @export
+aggregate_all_candidates_vertical = function(votes, position, turno, with_blank_null) {
+  get_votes_sum(votes, position, turno, with_blank_null)
+}
+
+#' @export
 aggregate_all_parties = function(votes, position, turno, with_blank_null) {
   get_votes_sum(votes, position, turno, with_blank_null) %>%
     dplyr::mutate(NUMERO_CANDIDATO = stringr::str_sub(NUMERO_CANDIDATO, 1, 2)) %>%

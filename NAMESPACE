@@ -2,6 +2,7 @@
 
 export("%>%")
 export(aggregate_all_candidates)
+export(aggregate_all_candidates_vertical)
 export(aggregate_all_parties)
 export(aggregate_majoritarian)
 export(get_map_data)
