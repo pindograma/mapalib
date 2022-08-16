@@ -4,7 +4,7 @@
 # This file is licensed under the GNU General Public License, version 3.
 
 #' @export
-get_map_data = function(year, position, cities, epsg, aggregate_fun, ..., source_order = NULL, districts = NULL) {
+get_map_data = function(year, position, cities, epsg, aggregate_fun, ..., source_order = NULL, districts = NULL, download_fun = download_section_votes) {
   purrr::map_dfr(cities, function(city_id) {
     ibge_data = download_ibge_data(city_id)
 
@@ -19,14 +19,16 @@ get_map_data = function(year, position, cities, epsg, aggregate_fun, ..., source
     geocoded_sections = download_geocoded_sections(year, city_id) %>%
       append_chosen_latlon_to_geocoded_sections()
 
-    votes_sum = download_section_votes(year, position, city_id) %>%
+    votes_sum = download_fun(year, position, city_id) %>%
       aggregate_fun(position, ...)
 
     tracts_with_voting_data = tracts %>%
       append_sections_to_tracts(dplyr::filter(geocoded_sections, ano == year), epsg) %>%
       dplyr::semi_join(votes_sum, by = c('zona' = 'NUM_ZONA', 'secao' = 'NUM_SECAO')) %>%
       dplyr::semi_join(ibge_data, by = c('code_tract' = 'Cod_setor')) %>%
-      dplyr::distinct(code_tract, rn) %>%
+      #dplyr::distinct(code_tract, rn) %>%
+      dplyr::select(code_tract, rn, geom) %>%
+      dplyr::distinct() %>%
       dplyr::mutate(main = rn)
 
     mapwalk(tracts_with_voting_data, tracts, tracts_with_voting_data$main, epsg) %>%
