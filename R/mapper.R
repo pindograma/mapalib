@@ -15,8 +15,8 @@ append_chosen_latlon_to_geocoded_sections = function(geocoded_secoes) {
   geocoded_secoes %>%
     dplyr::mutate(
       lat = dplyr::case_when(
-        !is.na(comp_tse_lat) ~ comp_tse_lat,
         !is.na(tse_lat) ~ tse_lat,
+        !is.na(comp_tse_lat) ~ comp_tse_lat,
         !is.na(google_lat) ~ google_lat,
         !is.na(inep_lat) ~ inep_lat,
         !is.na(places_lat) ~ places_lat,
@@ -24,8 +24,8 @@ append_chosen_latlon_to_geocoded_sections = function(geocoded_secoes) {
         !is.na(ibge_approx_lat) ~ ibge_approx_lat,
         T ~ NA_real_),
       lon = dplyr::case_when(
-        !is.na(comp_tse_lon) ~ comp_tse_lon,
         !is.na(tse_lon) ~ tse_lon,
+        !is.na(comp_tse_lon) ~ comp_tse_lon,
         !is.na(google_lon) ~ google_lon,
         !is.na(inep_lon) ~ inep_lon,
         !is.na(places_lon) ~ places_lon,

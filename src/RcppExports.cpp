@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // mapwalk
 DataFrame mapwalk(DataFrame spt, DataFrame sp, NumericVector all_vec, int epsg);
 RcppExport SEXP _mapalib_mapwalk(SEXP sptSEXP, SEXP spSEXP, SEXP all_vecSEXP, SEXP epsgSEXP) {

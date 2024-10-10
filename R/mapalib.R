@@ -19,22 +19,31 @@ get_map_data = function(year, position, cities, epsg, aggregate_fun, ..., source
     geocoded_sections = download_geocoded_sections(year, city_id) %>%
       append_chosen_latlon_to_geocoded_sections()
 
-    votes_sum = download_fun(year, position, city_id) %>%
+    votes_sum0 = download_fun(year, position, city_id)
+    votes_sum = votes_sum0 %>%
       aggregate_fun(position, ...)
 
-    tracts_with_voting_data = tracts %>%
+    tracts_with_voting_data0 = tracts %>%
       append_sections_to_tracts(dplyr::filter(geocoded_sections, ano == year), epsg) %>%
       dplyr::semi_join(votes_sum, by = c('zona' = 'NUM_ZONA', 'secao' = 'NUM_SECAO')) %>%
       dplyr::semi_join(ibge_data, by = c('code_tract' = 'Cod_setor')) %>%
       #dplyr::distinct(code_tract, rn) %>%
-      dplyr::select(code_tract, rn, geom) %>%
+      dplyr::select(code_tract, rn, geom)
+
+    tracts_with_voting_data = tracts_with_voting_data0 %>%
       dplyr::distinct() %>%
       dplyr::mutate(main = rn)
 
-    mapwalk(tracts_with_voting_data, tracts, tracts_with_voting_data$main, epsg) %>%
+    mw = mapwalk(tracts_with_voting_data, tracts, tracts_with_voting_data$main, epsg) %>%
       append_sections_to_tracts(dplyr::filter(geocoded_sections, ano == year), epsg) %>%
       dplyr::left_join(votes_sum, by = c('zona' = 'NUM_ZONA', 'secao' = 'NUM_SECAO')) %>%
-      dplyr::inner_join(ibge_data, by = c('code_tract' = 'Cod_setor')) %>%
+      dplyr::inner_join(ibge_data, by = c('code_tract' = 'Cod_setor'))
+
+    #mw %>%
+    #  dplyr::distinct(main, zona, secao) %>%
+    #  write.csv('__latest_main_zona_secao_corr.csv', row.names = F)
+
+    mw %>%
       dplyr::group_by(main) %>%
       dplyr::summarize(dplyr::across(dplyr::starts_with('cand'), mean, na.rm = T),
                        dplyr::across(dplyr::starts_with('abs_votes'), sum, na.rm = T),
